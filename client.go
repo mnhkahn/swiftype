@@ -81,7 +81,7 @@ func (c *Client) executeRequest(req *http.Request) (res JsonObject, err error) {
         return
     }
 
-    res = newGithubResult(ghc, resp)
+    
 
     return
 
