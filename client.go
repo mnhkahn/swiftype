@@ -1,19 +1,19 @@
 package swiftype
 
 import (
-    "fmt"
-    "io"
-    "io/ioutil"
-    "encoding/json"
-    "net/http"
-    "net/url"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 )
 
 const (
-    VERSION = "1.0.0"
-    USER_AGENT = "Swiftype-Go/" + VERSION
-    DEFAULT_API_HOST = "api.swiftype.com"
-    DEFAULT_API_BASE_PATH = "/api/v1/"
+	VERSION               = "1.0.0"
+	USER_AGENT            = "Swiftype-Go/" + VERSION
+	DEFAULT_API_HOST      = "api.swiftype.com"
+	DEFAULT_API_BASE_PATH = "/api/v1/"
 )
 
 type JsonObject map[string]interface{}
@@ -21,126 +21,124 @@ type JsonObject map[string]interface{}
 type JsonArray []JsonObject
 
 type SwiftypeSearchResults struct {
-    Records JsonObject  `json:"records"`
-    Info    JsonObject  `json:"info"`
-    Errors  JsonObject  `json:"errors"`
+	Records JsonObject `json:"records"`
+	Info    JsonObject `json:"info"`
+	Errors  JsonObject `json:"errors"`
 }
 
 type Client struct {
-    username string
-    password
-    api_key string
-    host string
-    httpc *http.Client
+	username string
+	password
+	api_key string
+	host    string
+	httpc   *http.Client
 }
 
 func NewClientWithUsernamePassword(username string, password string, host string) *Client {
-    return &Client{username:username, password:password, host:host, httpc:&http.Client{}}
+	return &Client{username: username, password: password, host: host, httpc: &http.Client{}}
 }
 
 func NewClientWithApiKey(api_key string, host string) *Client {
-    return &Client{api_key:api_key, host:host, httpc:&http.Client{}}
+	return &Client{api_key: api_key, host: host, httpc: &http.Client{}}
 }
 
 func (c *Client) decode(resp *http.Response) JsonArray {
-    var data JsonArray
+	var data JsonArray
 
-    b, err := ioutil.ReadAll(resp.Body)
-    if err != nil {
-        fmt.Println("Error:")
-        fmt.Println(err)
-        panic(err)
-    }
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error:")
+		fmt.Println(err)
+		panic(err)
+	}
 
-    json.Unmarshal(b, &data)
+	json.Unmarshal(b, &data)
 
-    return data
+	return data
 }
 
 func (c *Client) newRequest(method, url string, body io.Reader) (req *http.Request, err error) {
-    req, err = http.NewRequest(method, url, body)
+	req, err = http.NewRequest(method, url, body)
 
-    if err != nil {
-        return
-    }
+	if err != nil {
+		return
+	}
 
-    if (c.username != nil && c.password != nil) {
-        req.SetBasicAuth(c.username, c.password)
-    } else {
-        req.Header.Add("Authorization", fmt.Sprintf("auth_token %s", c.api_key))
-    }
+	if c.username != nil && c.password != nil {
+		req.SetBasicAuth(c.username, c.password)
+	} else {
+		req.Header.Add("Authorization", fmt.Sprintf("auth_token %s", c.api_key))
+	}
 
-    return
+	return
 }
 
 func (c *Client) executeRequest(req *http.Request) (res JsonObject, err error) {
-    
-    resp, err := c.httpc.Do(req)
 
-    if err != nil {
-        return
-    }
+	resp, err := c.httpc.Do(req)
 
-    
+	if err != nil {
+		return
+	}
 
-    return
+	return
 
 }
 
 func (c *Client) get(path string, params url.Values) JsonArray {
-    
-    params.Add("auth_token", c.api_key)
 
-    url := fmt.Sprintf("https://%s%s.json?%s", c.host, path, params.Encode())
-    
-    fmt.Println(url)
+	params.Add("auth_token", c.api_key)
 
-    resp, err := c.httpc.Get(url)
+	url := fmt.Sprintf("https://%s%s.json?%s", c.host, path, params.Encode())
 
-    if (err != nil) {
-        panic(err)
-    }
+	fmt.Println(url)
 
-    return c.decode(resp)
+	resp, err := c.httpc.Get(url)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return c.decode(resp)
 }
 
 func (c *Client) delete(path string, params url.Values) JsonArray {
-    return nil
+	return nil
 }
 
 func (c *Client) put(path string, params url.Values) JsonArray {
-    return nil
+	return nil
 }
 
 func (c *Client) post(path string, params url.Values) JsonArray {
-    return nil
+	return nil
 }
 
 func (c *Client) Engines() JsonArray {
 
-    results := c.get(DEFAULT_API_BASE_PATH + "engines", url.Values{})
+	results := c.get(DEFAULT_API_BASE_PATH+"engines", url.Values{})
 
-    return results
+	return results
 }
 
 func (c *Client) Engine(engine string) interface{} {
 
-    params := url.Values{}
-    params.Set("name", engine)
+	params := url.Values{}
+	params.Set("name", engine)
 
-    results := c.get(DEFAULT_API_BASE_PATH + "engines", params)
+	results := c.get(DEFAULT_API_BASE_PATH+"engines", params)
 
-    return results
+	return results
 }
 
 func (c *Client) Search(engine string, query string) JsonArray {
 
-    params := url.Values{}
-    params.Set("q", query)
+	params := url.Values{}
+	params.Set("q", query)
 
-    path := fmt.Sprintf("%sengines/%s/search", DEFAULT_API_BASE_PATH, engine)
+	path := fmt.Sprintf("%sengines/%s/search", DEFAULT_API_BASE_PATH, engine)
 
-    results := c.get(path, url.Values{})
+	results := c.get(path, url.Values{})
 
-    return results
+	return results
 }
