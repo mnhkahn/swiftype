@@ -1,7 +1,6 @@
 package swiftype
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -28,10 +27,10 @@ type SwiftypeSearchResults struct {
 
 type Client struct {
 	username string
-	password
-	api_key string
-	host    string
-	httpc   *http.Client
+	password string
+	api_key  string
+	host     string
+	httpc    *http.Client
 }
 
 func NewClientWithUsernamePassword(username string, password string, host string) *Client {
@@ -42,9 +41,7 @@ func NewClientWithApiKey(api_key string, host string) *Client {
 	return &Client{api_key: api_key, host: host, httpc: &http.Client{}}
 }
 
-func (c *Client) decode(resp *http.Response) JsonArray {
-	var data JsonArray
-
+func (c *Client) decode(resp *http.Response) []byte {
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error:")
@@ -52,9 +49,7 @@ func (c *Client) decode(resp *http.Response) JsonArray {
 		panic(err)
 	}
 
-	json.Unmarshal(b, &data)
-
-	return data
+	return b
 }
 
 func (c *Client) newRequest(method, url string, body io.Reader) (req *http.Request, err error) {
@@ -64,7 +59,7 @@ func (c *Client) newRequest(method, url string, body io.Reader) (req *http.Reque
 		return
 	}
 
-	if c.username != nil && c.password != nil {
+	if len(c.username) != 0 && len(c.password) != 0 {
 		req.SetBasicAuth(c.username, c.password)
 	} else {
 		req.Header.Add("Authorization", fmt.Sprintf("auth_token %s", c.api_key))
@@ -73,25 +68,25 @@ func (c *Client) newRequest(method, url string, body io.Reader) (req *http.Reque
 	return
 }
 
-func (c *Client) executeRequest(req *http.Request) (res JsonObject, err error) {
+// func (c *Client) executeRequest(req *http.Request) (res JsonObject, err error) {
 
-	resp, err := c.httpc.Do(req)
+// 	resp, err := c.httpc.Do(req)
 
-	if err != nil {
-		return
-	}
+// 	if err != nil {
+// 		return
+// 	}
 
-	return
+// 	return
 
-}
+// }
 
-func (c *Client) get(path string, params url.Values) JsonArray {
+func (c *Client) get(path string, params url.Values) []byte {
 
 	params.Add("auth_token", c.api_key)
 
 	url := fmt.Sprintf("https://%s%s.json?%s", c.host, path, params.Encode())
 
-	fmt.Println(url)
+	fmt.Println(url, "BBBB")
 
 	resp, err := c.httpc.Get(url)
 
@@ -114,7 +109,7 @@ func (c *Client) post(path string, params url.Values) JsonArray {
 	return nil
 }
 
-func (c *Client) Engines() JsonArray {
+func (c *Client) Engines() []byte {
 
 	results := c.get(DEFAULT_API_BASE_PATH+"engines", url.Values{})
 
@@ -131,14 +126,14 @@ func (c *Client) Engine(engine string) interface{} {
 	return results
 }
 
-func (c *Client) Search(engine string, query string) JsonArray {
+func (c *Client) Search(engine string, query string) []byte {
 
 	params := url.Values{}
 	params.Set("q", query)
 
 	path := fmt.Sprintf("%sengines/%s/search", DEFAULT_API_BASE_PATH, engine)
 
-	results := c.get(path, url.Values{})
+	results := c.get(path, params)
 
 	return results
 }
