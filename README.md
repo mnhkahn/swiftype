@@ -3,13 +3,19 @@ swiftype v1.0
 
 This is a Golang client for swiftype. Only support search.
 
-### doc
+### Getting started
+
+To get the package, execute:
+
+go get gopkg.in/mnhkahn/swiftype.v1
+
+### For more details, see the API documentation.
 
 [godoc](https://godoc.org/github.com/mnhkahn/swiftype)
 
 ### example
 
-	import "github.com/mnhkahn/swiftype"
+	import "gopkg.in/mnhkahn/swiftype.v1"
 
 	var (
 		SWIFTYPE        *swiftype.Client
