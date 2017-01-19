@@ -1,4 +1,4 @@
-swiftype v1.0
+swiftype v1
 ========
 
 This is a Golang client for swiftype. Only support search.

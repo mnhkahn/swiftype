@@ -1,3 +1,7 @@
+// Copyright 2017-present Bryce. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+
 /*
 swiftype v1.0
 ========
@@ -31,6 +35,6 @@ This is a Golang client for swiftype. Only support search.
 		}
 		return data
 	}
-*/
 
+*/
 package swiftype
