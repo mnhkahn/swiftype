@@ -1,7 +1,7 @@
 swiftype v1.0
 ========
 
-This is still a work in progress but it will be a fully functional Swiftype Go client
+This is a Golang client for swiftype. Only support search.
 
 ### doc
 

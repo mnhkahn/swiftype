@@ -16,16 +16,6 @@ const (
 	DEFAULT_API_BASE_PATH = "/api/v1/"
 )
 
-type JsonObject map[string]interface{}
-
-type JsonArray []JsonObject
-
-type SwiftypeSearchResults struct {
-	Records JsonObject `json:"records"`
-	Info    JsonObject `json:"info"`
-	Errors  JsonObject `json:"errors"`
-}
-
 type Client struct {
 	username string
 	password string
@@ -88,19 +78,15 @@ func (c *Client) get(path string, params url.Values) ([]byte, error) {
 // 	return nil
 // }
 
-func (c *Client) Engines() []byte {
-	results := c.get(DEFAULT_API_BASE_PATH+"engines", url.Values{})
-
-	return results
+func (c *Client) Engines() ([]byte, error) {
+	return c.get(DEFAULT_API_BASE_PATH+"engines", url.Values{})
 }
 
-func (c *Client) Engine(engine string) interface{} {
+func (c *Client) Engine(engine string) ([]byte, error) {
 	params := url.Values{}
 	params.Set("name", engine)
 
-	results := c.get(DEFAULT_API_BASE_PATH+"engines", params)
-
-	return results
+	return c.get(DEFAULT_API_BASE_PATH+"engines", params)
 }
 
 func (c *Client) Search(engine string, query string) (*SwiftypeResult, error) {
@@ -111,7 +97,7 @@ func (c *Client) Search(engine string, query string) (*SwiftypeResult, error) {
 
 	data, err := c.get(path, params)
 	if err != nil {
-		return data, err
+		return nil, err
 	}
 
 	res := new(SwiftypeResult)
