@@ -1,9 +1,3 @@
-/*
- * @Author: mnhkahn
- * @Date: 2017-01-19 12:55:46
- * @Last Modified by: lichao115
- * @Last Modified time: 2017-01-19 12:56:10
- */
 package swiftype
 
 // Swiftype
