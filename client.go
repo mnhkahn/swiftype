@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -89,9 +90,11 @@ func (c *Client) Engine(engine string) ([]byte, error) {
 	return c.get(DEFAULT_API_BASE_PATH+"engines", params)
 }
 
-func (c *Client) Search(engine string, query string) (*SwiftypeResult, error) {
+func (c *Client) Search(engine string, sp *SearchParam) (*SwiftypeResult, error) {
 	params := url.Values{}
-	params.Set("q", query)
+	params.Set("q", sp.Q)
+	params.Set("page", strconv.Itoa(sp.Page))
+	params.Set("per_page", strconv.Itoa(sp.PerPage))
 
 	path := fmt.Sprintf("%sengines/%s/search", DEFAULT_API_BASE_PATH, engine)
 
@@ -103,4 +106,29 @@ func (c *Client) Search(engine string, query string) (*SwiftypeResult, error) {
 	res := new(SwiftypeResult)
 	err = json.Unmarshal(data, res)
 	return res, err
+}
+
+type SearchParam struct {
+	Q       string
+	Page    int
+	PerPage int
+}
+
+func NewSearchParam(q string) *SearchParam {
+	sp := new(SearchParam)
+	sp.Q = q
+	sp.Page = 1
+	sp.PerPage = 20
+	return sp
+}
+
+func NewSearchParamLimit(q string, page, per_page int) *SearchParam {
+	sp := NewSearchParam(q)
+	sp.Page = page
+	sp.PerPage = per_page
+	return sp
+}
+
+func (sp *SearchParam) Query() string {
+	return sp.Q
 }
